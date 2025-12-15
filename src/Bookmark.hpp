@@ -3,7 +3,7 @@
 
 class Bookmark {
     protected:
-        void create();
+        void updateScheme();
     protected:
         std::string dbPath;
     public:

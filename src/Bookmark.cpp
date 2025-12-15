@@ -12,9 +12,7 @@
 Bookmark::Bookmark() {
     dbPath = GetDbPath();
     std::cout << "debug: Директория с базой данных " << dbPath << std::endl;
-    if (!fsx::is_regular_file(dbPath)) {
-        create();
-    }
+    updateScheme();
 }
 
 Bookmark::~Bookmark() {
@@ -24,34 +22,45 @@ Bookmark::~Bookmark() {
  * Создаем базу данных
  *
  */
-void Bookmark::create() {
-    sqlite3 *db;
+void Bookmark::updateScheme() {
+    sqlite3 *db = nullptr;
+    std::string query;
+    char *err_msg = nullptr;
+    int rc;
 
     // Шаг 1. Открываем
     if (sqlite3_open(dbPath.c_str(), &db) != SQLITE_OK) {
         const char *err_msg = sqlite3_errmsg(db);
         std::cerr << "Ошибка открытия БД: " << err_msg << std::endl;
-        // TODO - узнать sqlite3_free(err_msg);
-        return;
+        goto out;
     }
 
-    // Шаг 2. Создаем структуру
-    std::string query = "CREATE TABLE IF NOT EXISTS book ("
-                "  book_hash TEXT NOT NULL PRIMARY KEY,"
-                "  book_pos INTEGER DEFAULT 0,"
+    // Шаг 2. Создаем таблицу аудиокниги (ab)
+    query = "CREATE TABLE IF NOT EXISTS ab ("
+                "  ab_hash TEXT NOT NULL,"
+                "  ab_chapter_hash TEXT NOT NULL,"
+                "  ab_position INTEGER NOT NULL DEFAULT 0"
                 ");";
-
-    char *err_msg = NULL;
-    int rc = sqlite3_exec(db, query.c_str(), 0, 0, &err_msg);
-
+    rc = sqlite3_exec(db, query.c_str(), 0, 0, &err_msg);
     if (rc != SQLITE_OK) {
         std::cerr << "Ошибка создания таблицы: " << err_msg << std::endl;
         sqlite3_free(err_msg);
-        return;
+        goto out;
     }
+
+out:
 
     // Шаг 3. Закрываем
     sqlite3_close(db);
+
+}
+
+/**
+ * Загружает позицию главы и в случае отсутствия позиции создает новую запись
+ *
+ */
+void Bookmark::UpdateChapter(Book *book, Chapter* Chapter) {
+    // TODO - обновляем...
 }
 
 /**
@@ -59,16 +68,18 @@ void Bookmark::create() {
  *
  */
 void Bookmark::UpdatePosition(std::string book_hash, unsigned book_pos) {
-    sqlite3 *db;
-    sqlite3_stmt *stmt;
+    sqlite3 *db = nullptr;
+    sqlite3_stmt *stmt = nullptr;
+    std::string query;
+    int rc = 0;
 
     if (sqlite3_open(dbPath.c_str(), &db) != SQLITE_OK) {
         std::cerr << "Ошибка открытия БД: " << sqlite3_errmsg(db) << std::endl;
-        return;
+        goto out;
     }
 
-    const char *sql = "UPDATE book SET book_pos = ? WHERE book_hash = ?;";
-    int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+    query = "UPDATE book SET book_pos = ? WHERE book_hash = ?;";
+    rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
     if (rc != SQLITE_OK) {
         std::cerr << "Ошибка подготовки запроса: " << sqlite3_errmsg(db) << std::endl;
         goto out;
@@ -78,8 +89,6 @@ void Bookmark::UpdatePosition(std::string book_hash, unsigned book_pos) {
     sqlite3_bind_text(stmt, 2, book_hash.c_str(), -1, SQLITE_STATIC);
 
     rc = sqlite3_step(stmt);
-    sqlite3_finalize(stmt);
-
     if (rc != SQLITE_DONE) {
         std::cerr << "Ошибка обновления: " << sqlite3_errmsg(db) << std::endl;
         goto out;
@@ -87,6 +96,7 @@ void Bookmark::UpdatePosition(std::string book_hash, unsigned book_pos) {
 
 out:
 
+    sqlite3_finalize(stmt);
     sqlite3_close(db);
 
 }
