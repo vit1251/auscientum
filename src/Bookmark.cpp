@@ -7,6 +7,8 @@
 #include "Bookmark.hpp"
 #include "Config.hpp"
 #include "fsx.hpp"
+#include "Book.hpp"
+#include "Chapter.hpp"
 
 
 Bookmark::Bookmark() {
@@ -59,8 +61,39 @@ out:
  * Загружает позицию главы и в случае отсутствия позиции создает новую запись
  *
  */
-void Bookmark::UpdateChapter(Book *book, Chapter* Chapter) {
-    // TODO - обновляем...
+void Bookmark::UpdateChapter(Book *book, Chapter* chapter) {
+    sqlite3 *db = nullptr;
+    sqlite3_stmt *stmt = nullptr;
+    std::string query;
+    int rc = 0;
+
+    if (sqlite3_open(dbPath.c_str(), &db) != SQLITE_OK) {
+        std::cerr << "Ошибка открытия БД: " << sqlite3_errmsg(db) << std::endl;
+        goto out;
+    }
+
+    query = "INSERT INTO ab (ab_hash, ab_chapter_hash, ab_position) VALUES (?,?,?);";
+    rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
+    if (rc != SQLITE_OK) {
+        std::cerr << "Ошибка подготовки запроса: " << sqlite3_errmsg(db) << std::endl;
+        goto out;
+    }
+
+    sqlite3_bind_text(stmt, 1, book->m_hash.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 2, chapter->m_hash.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_int(stmt, 3, 0);
+
+    rc = sqlite3_step(stmt);
+    if (rc != SQLITE_DONE) {
+        std::cerr << "Ошибка обновления: " << sqlite3_errmsg(db) << std::endl;
+        goto out;
+    }
+
+out:
+
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
+
 }
 
 /**

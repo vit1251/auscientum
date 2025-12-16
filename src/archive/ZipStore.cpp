@@ -1,6 +1,8 @@
 
 #include <string>
 #include <vector>
+#include <algorithm>
+#include <iostream>
 
 #include <zip.h>
 
@@ -66,5 +68,22 @@ Book* restoreBook(std::string fileName) {
         }
     }
     zip_close(archive);
+
+    // Шаг 2. Вычисляем уникальный идентификатор книги
+    std::vector<std::string> hashs;
+    for (auto chapter: book->m_chapters) {
+        std::cout << "Глава: " << chapter->m_path << " сумма = " << chapter->m_hash << std::endl;
+        hashs.push_back(chapter->m_hash);
+    }
+    std::sort(hashs.begin(), hashs.end());
+    Hash bookDigest;
+    for (auto hash: hashs) {
+        std::cout << "В алфавитном порядке " << hash << std::endl;
+        bookDigest.Update(hash);
+    }
+    std::string bookHash = bookDigest.Digest();
+    std::cout << "Книге присвоен идентификатор " << bookHash << std::endl;
+    book->SetHash(bookHash);
+
     return book;
 }

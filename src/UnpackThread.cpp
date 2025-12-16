@@ -7,6 +7,7 @@
 #include "Book.hpp"
 #include "ZipStore.hpp"
 #include "Hash.hpp"
+#include "Bookmark.hpp"
 
 
 UnpackThread::UnpackThread(wxFrame *parent, std::string fileName) : m_parent(parent), m_fileName(fileName) {
@@ -23,21 +24,11 @@ void* UnpackThread::Entry() {
         wxLogDebug(wxT("Ошибка %s"), book->m_error);
     }
 
-    // Шаг 2. Вычисляем уникальный идентификатор книги
-    std::vector<std::string> hashs;
+    // Шаг 2. Обновим метаиниформацию в индексе
+    Bookmark* bookmark = new Bookmark();
     for (auto chapter: book->m_chapters) {
-        wxLogDebug(wxT("Глава: %s hash = %s"), chapter->m_path, chapter->m_hash);
-        hashs.push_back(chapter->m_hash);
+        bookmark->UpdateChapter(book, chapter);
     }
-    std::sort(hashs.begin(), hashs.end());
-    Hash bookDigest;
-    for (auto hash: hashs) {
-        wxLogDebug(wxT("В алфавитном порядке %s"), hash);
-        bookDigest.Update(hash);
-    }
-    std::string bookHash = bookDigest.Digest();
-    wxLogDebug(wxT("Книге присвоен идентификатор %s"), bookHash);
-    book->SetHash(bookHash);
 
     // Шаг 3. Завершение
     wxLogDebug(wxT("Вычисление завершено."));
