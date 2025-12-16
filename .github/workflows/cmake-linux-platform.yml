@@ -24,7 +24,12 @@ jobs:
     - name: Install depends
       run: |
         sudo apt-get update
-        sudo apt-get install -y libsfml-dev libssl-dev libzip-dev libtag1-dev libwxgtk3.2-dev libsqlite3-dev
+        sudo apt-get install -y libsfml-dev
+        sudo apt-get install -y libssl-dev
+        sudo apt-get install -y libzip-dev zip
+        sudo apt-get install -y libtag1-dev
+        sudo apt-get install -y libwxgtk3.2-dev
+        sudo apt-get install -y libsqlite3-dev
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory
