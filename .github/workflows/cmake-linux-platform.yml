@@ -21,6 +21,11 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Install depends
+      run: |
+        apt-get update
+        apt-get install -y libsfml-dev libssl-dev libzip-dev libtag1-dev libwxgtk3.2-dev libsqlite3-dev
+
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
