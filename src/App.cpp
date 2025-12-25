@@ -15,3 +15,5 @@ bool AudokApp::OnInit() {
 }
 
 IMPLEMENT_APP(AudokApp)
+
+wxDEFINE_EVENT(BOOK_UPDATE_EVENT, wxCommandEvent);

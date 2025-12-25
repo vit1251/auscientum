@@ -4,6 +4,6 @@
 #include "Book.h"
 
 
-std::list<Book *> restoreBooks(std::string path) {
+std::list<Book *> BookStore::Read(std::string path) {
 
 }

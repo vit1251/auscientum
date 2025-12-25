@@ -10,4 +10,6 @@ class AudokApp : public wxApp {
 
 DECLARE_APP(AudokApp)
 
+wxDECLARE_EVENT(BOOK_UPDATE_EVENT, wxCommandEvent);
+
 #endif // APP_HPP__

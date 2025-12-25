@@ -6,18 +6,17 @@ class Chapter;
 
 class Bookmark {
     protected:
-        void updateScheme();
+        void CreateScheme();
+        void InsertChapter(Book* book, Chapter* chapter);
+        void UpdateChapter(Book* book, Chapter* chapter);
+        unsigned Exists(Book* book, Chapter* chapter, bool *res);
     protected:
         std::string dbPath;
     public:
         Bookmark();
         ~Bookmark();
-        void UpdateChapter(Book* book, Chapter* chapter);
-        void Sync();
-        void UpdatePosition(std::string book_hash, unsigned book_pos);
-        void Restore();
-        void Store();
-
+        void ReadChapter(Book* book, Chapter* chapter);
+        void SaveChapter(Book* book, Chapter* chapter);
 };
 
 #endif // BOOKMARK_HPP__

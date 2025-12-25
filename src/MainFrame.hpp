@@ -2,6 +2,8 @@
 
 
 class MainFrame : public wxFrame {
+    protected:
+        void OnBookUpdate(wxCommandEvent& event);                // Событие обновления книги
     private:
         wxPanel* m_main;                    // Основное окно приложения
         wxPanel* m_view;                    // Основное виджет приложения

@@ -108,13 +108,26 @@ void MainFrame::OnUnpackComplete(wxThreadEvent& event) {
 
     wxLogDebug(wxT("Можно разблокировать интерфейс."));
     appState.m_reading = false;
+
+    // Отправим себе новое сообщение
+    wxCommandEvent updateEvent(BOOK_UPDATE_EVENT);
+    this->GetEventHandler()->QueueEvent(updateEvent.Clone());
+}
+
+void MainFrame::OnBookUpdate(wxCommandEvent& event) {
+    // Шаг 1. Рассылаем событие дочерним компонентам о изменении книги
+    wxCommandEvent updateEvent(BOOK_UPDATE_EVENT);
+    m_view->GetEventHandler()->QueueEvent(updateEvent.Clone());
 }
 
 void MainFrame::BindEvents() {
+    // Системные события
     Bind(wxEVT_MENU, &MainFrame::OnOpen, this, wxID_OPEN);
     Bind(wxEVT_MENU, &MainFrame::OnExit, this, wxID_EXIT);
     Bind(wxEVT_CLOSE_WINDOW, &MainFrame::OnClose, this);
     Bind(wxEVT_THREAD, &MainFrame::OnUnpackComplete, this, EVENT_UNPACK_COMPLETE);
     Bind(wxEVT_THREAD, &MainFrame::OnUnpackProgress, this, EVENT_UNPACK_UPDATE);
+    // Пользовательские события
+    Bind(BOOK_UPDATE_EVENT, &MainFrame::OnBookUpdate, this);
 }
 

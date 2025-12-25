@@ -29,7 +29,10 @@ file(GLOB CXX_SOURCES "src/App.cpp"
         "src/meta/Chapter.cpp"
         "src/compat/xdg.cpp"
         "src/compat/fsx.cpp"
+        "src/compat/str.cpp"
+        "src/compat/ZipArchive.cpp"
         "src/Config.cpp"
+        "src/info/Tag.cpp"
     )
 
 list(APPEND SOURCES ${CXX_SOURCES})
@@ -42,6 +45,7 @@ target_include_directories(auscientum PRIVATE "src/archive")
 target_include_directories(auscientum PRIVATE "src/meta")
 target_include_directories(auscientum PRIVATE "src/common")
 target_include_directories(auscientum PRIVATE "src/compat")
+target_include_directories(auscientum PRIVATE "src/info")
 target_include_directories(auscientum PRIVATE ${SFML_INCLUDE_DIRS})
 target_include_directories(auscientum PRIVATE ${TAGLIB_INCLUDE_DIRS})
 

@@ -23,16 +23,9 @@ BookView::~BookView() {
 }
 
 void BookView::InitializeComponents() {
-
-    AudokApp& audokApp = wxGetApp();
-    AppState& appState = audokApp.m_state;
-
-
-
 }
 
 void BookView::SetupLayout() {
-
 }
 
 void BookView::BindEvents() {
@@ -44,6 +37,9 @@ void BookView::OnPaint(wxPaintEvent& event)
 {
     wxSize size = GetClientSize();
     wxPaintDC dc(this);
+
+    AudokApp& audokApp = wxGetApp();
+    AppState& appState = audokApp.m_state;
 
     dc.SetBackgroundMode(wxSOLID);
     dc.SetTextForeground(*wxBLACK);

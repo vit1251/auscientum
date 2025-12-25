@@ -27,13 +27,20 @@ void* UnpackThread::Entry() {
     // Шаг 2. Обновим метаиниформацию в индексе
     Bookmark* bookmark = new Bookmark();
     for (auto chapter: book->m_chapters) {
-        bookmark->UpdateChapter(book, chapter);
+        std::cout << "Читаем закладку " << chapter->m_name << std::endl;
+        bookmark->ReadChapter(book, chapter);
+        bookmark->SaveChapter(book, chapter);
     }
 
     // Шаг 3. Завершение
     wxLogDebug(wxT("Вычисление завершено."));
 
-    // Шаг 4. Окончание работы
+    // Шаг 4. Сохраняем книгу
+    AudokApp& audokApp = wxGetApp();
+    AppState& appState = audokApp.m_state;
+    appState.m_book = book;
+
+    // Шаг 5. Окончание работы
     SendMessage(EVENT_UNPACK_COMPLETE);
 
     return nullptr;

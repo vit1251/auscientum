@@ -9,12 +9,9 @@
 #include "Hash.hpp"
 #include "Chapter.hpp"
 #include "Book.hpp"
-
-
-static bool endsWith(const std::string& str, const std::string& suffix) {
-    if (suffix.size() > str.size()) return false;
-    return str.compare(str.size() - suffix.size(), suffix.size(), suffix) == 0;
-}
+#include "Tag.hpp"
+#include "ZipArchive.hpp"
+#include "str.hpp"
 
 /**
  * Восстанавливаем книгу из ZIP представления
@@ -46,11 +43,11 @@ Book* restoreBook(std::string fileName) {
         zip_stat_init(&fileInfo);
         if (zip_stat_index(archive, i, 0, &fileInfo) == 0) {
             std::string path = fileInfo.name;
-            if (endsWith(path, "/")) {
+            if (str::endsWith(path, "/")) {
                 continue;
             }
             Chapter *chapter = new Chapter();
-            chapter->SetPath(path);
+            chapter->SetZipPath(path);
             //
             zip_file* file = zip_fopen_index(archive, i, 0);
             if (file) {
@@ -69,7 +66,21 @@ Book* restoreBook(std::string fileName) {
     }
     zip_close(archive);
 
-    // Шаг 2. Вычисляем уникальный идентификатор книги
+    // Шаг 2. Подгружаем метаинформацию
+    ZipArchive* archive2 = new ZipArchive();
+    archive2->Open(fileName);
+    for (auto chapter: book->m_chapters) {
+        std::string zipFile = chapter->m_zip_path;
+        std::string outFile = "/tmp/" + chapter->m_hash + ".mp3";
+        std::cout << "Распаковка " << zipFile << " в " << outFile << std::endl;
+        archive2->Extract(zipFile, outFile);
+        chapter->SetPath(outFile);
+        LoadMeta(book, chapter);
+    }
+    archive2->Close();
+    delete archive2;
+
+    // Шаг 3. Вычисляем уникальный идентификатор книги
     std::vector<std::string> hashs;
     for (auto chapter: book->m_chapters) {
         std::cout << "Глава: " << chapter->m_path << " сумма = " << chapter->m_hash << std::endl;
@@ -84,6 +95,9 @@ Book* restoreBook(std::string fileName) {
     std::string bookHash = bookDigest.Digest();
     std::cout << "Книге присвоен идентификатор " << bookHash << std::endl;
     book->SetHash(bookHash);
+
+    // Шаг 4. Сортировка по имени
+    // TODO - ...
 
     return book;
 }

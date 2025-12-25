@@ -1,6 +1,9 @@
 #ifndef APPSTATE_HPP__
 #define APPSTATE_HPP__
 
+#include <SFML/Audio.hpp>
+#include <SFML/System.hpp>
+
 class Book;
 class Bookmark;
 
@@ -12,6 +15,7 @@ class AppState {
         std::string m_dbPath;
         Book* m_book;
         bool m_reading;
+        sf::Music m_music;
 };
 
 #endif // APPSTATE_HPP__
