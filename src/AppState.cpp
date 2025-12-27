@@ -14,3 +14,5 @@ AppState::AppState() {
     m_bookmark = new Bookmark();
 }
 
+AppState::~AppState() {
+}

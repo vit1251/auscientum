@@ -1,21 +1,13 @@
 
 #include "stdwx.h"
 #include "PlayerPanel.hpp"
+#include "str.hpp"
 
 #include "btn-play.xpm"
 #include "btn-pause.xpm"
 
 wxDEFINE_EVENT(PLAYER_CHANGE_POSITION, wxCommandEvent);
 
-wxString makeDuration(unsigned total_seconds) {
-    std::div_t hm = std::div(total_seconds, 3600);
-    unsigned hours = hm.quot;
-    unsigned rem_seconds = hm.rem;
-    std::div_t ms = std::div(rem_seconds, 60);
-    unsigned minutes = ms.quot;
-    unsigned seconds = ms.rem;
-    return wxString::Format("%02u:%02u:%02u", hours, minutes, seconds);
-}
 
 PlayerPanel::PlayerPanel(wxWindow* parent) : wxPanel(parent, wxID_ANY) {
     SetBackgroundColour(wxColour(0, 230, 0));
@@ -89,8 +81,8 @@ void PlayerPanel::ProgressOnPaint(wxPaintEvent& event) {
     }
 
     // Сколько прослушано
-    wxString curPosition = makeDuration(m_position);
-    wxString curDuration = makeDuration(m_duration);
+    wxString curPosition = str::makeDuration(m_position);
+    wxString curDuration = str::makeDuration(m_duration);
 //    wxLogDebug("Позиция: %s", curPosition);
 //    wxLogDebug("Длительность: %s", curDuration);
 

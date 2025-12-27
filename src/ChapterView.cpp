@@ -12,9 +12,6 @@
 #include "Bookmark.hpp"
 #include "Chapter.hpp"
 
-#include "btn-play.xpm"
-
-
 ChapterView::ChapterView(Chapter* chapter, wxWindow* parent, wxWindowID id) : wxPanel(parent, id), m_chapter(chapter)
 {
     InitializeComponents();
@@ -44,12 +41,13 @@ void ChapterView::BindEvents() {
 //    Bind(wxEVT_TIMER, &ChapterView::OnTimer, this, ID_TIMER);
 }
 
-static unsigned GetPos() {
+unsigned ChapterView::GetPos() {
     AudokApp& audokApp = wxGetApp();
     AppState& appState = audokApp.m_state;
 
-    double curPos = appState.m_music.getPlayingOffset().asSeconds();
-    double curDur = appState.m_music.getDuration().asSeconds();
+//    double curPos = appState.m_music.getPlayingOffset();
+    double curPos = m_chapter->m_pos;
+    double curDur = appState.m_music.getDuration();
     if (curDur == 0.0) {
         return 0;
     }
@@ -65,7 +63,9 @@ void ChapterView::OnTimer(wxTimerEvent& event) {
     AudokApp& audokApp = wxGetApp();
     AppState& appState = audokApp.m_state;
 
-    m_chapter->m_pos = appState.m_music.getPlayingOffset().asSeconds();
+    m_chapter->m_pos = appState.m_music.getPlayingOffset();
+
+    appState.m_bookmark->SaveChapter(appState.m_book, m_chapter);
 
     Refresh();
 }
@@ -94,7 +94,7 @@ void ChapterView::OnMouseClick(wxMouseEvent& event) {
     auto bookmark = std::make_unique<Bookmark>();
 
     // Останавливаем если уже проигрываем
-    if (appState.m_music.getStatus() == sf::Music::Playing) {
+    if (appState.m_music.getStatus() == AudioPlayer::State::Playing) {
         bookmark->SaveChapter(appState.m_book, m_chapter);
         appState.m_music.stop();
         m_timer->Stop();
@@ -110,7 +110,7 @@ void ChapterView::OnMouseClick(wxMouseEvent& event) {
     // Запускаем проигрывание аудиокниги
     std::cout << "Продолжаем проигрывание аудиокниги с позиции " << m_chapter->m_pos << " сек. " << std::endl;
     appState.m_music.play();
-    appState.m_music.setPlayingOffset(sf::seconds(m_chapter->m_pos));
+    appState.m_music.setPlayingOffset(m_chapter->m_pos);
 
     // Запускаем таймер для обновления позиции
     m_timer->Start(500);
@@ -134,8 +134,8 @@ void ChapterView::OnPaint(wxPaintEvent& event) {
     dc.DrawText(title, 10, 10);
 
     // Шаг 2. Рисуем позицию прогирывания
-    double curPos = appState.m_music.getPlayingOffset().asSeconds();
-    double curDur = appState.m_music.getDuration().asSeconds();
+    unsigned curPos = appState.m_music.getPlayingOffset();
+    unsigned curDur = appState.m_music.getDuration();
     std::string szPos = str::makeDuration(curPos);
     std::string szDur = str::makeDuration(curDur);
 
@@ -146,14 +146,10 @@ void ChapterView::OnPaint(wxPaintEvent& event) {
     unsigned posX = size.GetWidth() - 20 - 50;
     dc.DrawText(wxDur, posX, 50);
 
-    // Draw the play button
-    wxBitmap playBitmap(btn_play);
-    dc.DrawBitmap(playBitmap, 10, 50, true);
-
     // Draw the progress bar
     int progressBarWidth = size.GetWidth() - 20;
     int progressBarHeight = 20;
-    int progressValue = m_chapter->m_pos;
+    int progressValue = GetPos();
 
     dc.SetPen(*wxBLACK_PEN);
     dc.SetBrush(wxBrush(wxColour(192, 192, 192)));

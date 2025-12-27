@@ -19,6 +19,8 @@ class ChapterView : public wxPanel {
         void OnMouseClick(wxMouseEvent& event);
         void OnPaint(wxPaintEvent& event);
         void OnTimer(wxTimerEvent& event);
+    public:
+        unsigned GetPos();
 };
 
 #endif // CHAPTERVIEW_HPP__
