@@ -1,5 +1,7 @@
+#ifndef MYFRAME_HPP__
+#define MYFRAME_HPP__
 
-
+class PlayerPanel;
 
 class MainFrame : public wxFrame {
     protected:
@@ -7,7 +9,7 @@ class MainFrame : public wxFrame {
     private:
         wxPanel* m_main;                    // Основное окно приложения
         wxPanel* m_view;                    // Основное виджет приложения
-        Player* m_player;                   // Компонент проигрываетля
+        PlayerPanel* m_player;                   // Компонент проигрываетля
         wxMenuBar *m_menuBar;
         wxMenu *m_menuFile;
         unsigned m_progress;
@@ -24,3 +26,5 @@ class MainFrame : public wxFrame {
     public:
         MainFrame();
 };
+
+#endif // MYFRAME_HPP__

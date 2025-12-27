@@ -22,6 +22,7 @@ file(GLOB CXX_SOURCES "src/App.cpp"
         "src/AppState.cpp"
         "src/MainFrame.cpp"
         "src/Player.cpp"
+        "src/PlayerPanel.cpp"
         "src/UnpackThread.cpp"
         "src/common/Hash.cpp"
         "src/archive/ZipStore.cpp"
@@ -39,6 +40,7 @@ list(APPEND SOURCES ${CXX_SOURCES})
 
 add_executable(auscientum ${SOURCES})
 
+target_include_directories(auscientum PRIVATE "res")
 target_include_directories(auscientum PRIVATE "include")
 target_include_directories(auscientum PRIVATE "src")
 target_include_directories(auscientum PRIVATE "src/archive")

@@ -3,7 +3,7 @@
 
 #include "AppState.hpp"
 #include "App.hpp"
-#include "Player.hpp"
+#include "PlayerPanel.hpp"
 #include "MainFrame.hpp"
 #include "UnpackThread.hpp"
 #include "BookView.hpp"
@@ -85,7 +85,7 @@ void MainFrame::InitializeComponents() {
     // Шаг 2. Основной виджет приложения
     m_view = new ChapterList(m_main, wxID_ANY);
     // Шаг 3. Проигрыватель
-    m_player = new Player(m_main);
+    m_player = new PlayerPanel(m_main);
     m_player->SetDuration(3 * 3600 + 2 * 60 + 34);
     m_player->SetPos(30);
 }

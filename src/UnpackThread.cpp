@@ -24,6 +24,11 @@ void* UnpackThread::Entry() {
         wxLogDebug(wxT("Ошибка %s"), book->m_error);
     }
 
+    // Шаг 2. Сортируем главы по возростанию
+    book->m_chapters.sort([](const Chapter* a, const Chapter* b) {
+        return a->m_number < b->m_number;
+    });
+
     // Шаг 2. Обновим метаиниформацию в индексе
     Bookmark* bookmark = new Bookmark();
     for (auto chapter: book->m_chapters) {

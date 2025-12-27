@@ -4,11 +4,16 @@
 
 #include "stdwx.h"
 
+#include "str.hpp"
+
 #include "AppState.hpp"
 #include "App.hpp"
 #include "ChapterView.hpp"
 #include "Bookmark.hpp"
 #include "Chapter.hpp"
+
+#include "btn-play.xpm"
+
 
 ChapterView::ChapterView(Chapter* chapter, wxWindow* parent, wxWindowID id) : wxPanel(parent, id), m_chapter(chapter)
 {
@@ -73,7 +78,18 @@ void ChapterView::OnMouseClick(wxMouseEvent& event) {
     int x = pos.x;
     int y = pos.y;
 
-    wxLogMessage("Клик в панели: x=%d, y=%d", x, y);
+    wxString wxMsg = wxString::Format("Вы уверены, что хотите перейти к главе '%s'?",  m_chapter->m_name);
+    int answer = wxMessageBox(
+        wxMsg,                                           // Текст вопроса
+        "Переход к новой главее",                        // Заголовок окна
+        wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION        // Кнопки и иконка
+    );
+    if (answer == wxYES) {
+        // Пользователь нажал "Да"
+    } else {
+        // Пользователь нажал "Нет" (или закрыл окно)
+        return;
+    }
 
     auto bookmark = std::make_unique<Bookmark>();
 
@@ -93,13 +109,18 @@ void ChapterView::OnMouseClick(wxMouseEvent& event) {
 
     // Запускаем проигрывание аудиокниги
     std::cout << "Продолжаем проигрывание аудиокниги с позиции " << m_chapter->m_pos << " сек. " << std::endl;
-    appState.m_music.setPlayingOffset(sf::seconds(m_chapter->m_pos));
     appState.m_music.play();
+    appState.m_music.setPlayingOffset(sf::seconds(m_chapter->m_pos));
+
+    // Запускаем таймер для обновления позиции
     m_timer->Start(500);
 
 }
 
 void ChapterView::OnPaint(wxPaintEvent& event) {
+    AudokApp& audokApp = wxGetApp();
+    AppState& appState = audokApp.m_state;
+
     wxSize size = GetClientSize();
     wxPaintDC dc(this);
 
@@ -109,13 +130,25 @@ void ChapterView::OnPaint(wxPaintEvent& event) {
     // Draw the chapter title
     uint16_t chapterNumber = m_chapter->m_number;
     const char* chapterName = m_chapter->m_name.c_str();
-    std::cout << "Глава: " << m_chapter->m_name << std::endl;
     wxString title = wxString::Format("%02d. %s", chapterNumber, chapterName);
     dc.DrawText(title, 10, 10);
 
+    // Шаг 2. Рисуем позицию прогирывания
+    double curPos = appState.m_music.getPlayingOffset().asSeconds();
+    double curDur = appState.m_music.getDuration().asSeconds();
+    std::string szPos = str::makeDuration(curPos);
+    std::string szDur = str::makeDuration(curDur);
+
+    wxString wxPos = wxString::Format("%s", szPos.c_str());
+    wxString wxDur = wxString::Format("%s", szDur.c_str());
+
+    dc.DrawText(wxPos, 10, 50);
+    unsigned posX = size.GetWidth() - 20 - 50;
+    dc.DrawText(wxDur, posX, 50);
+
     // Draw the play button
-//    wxBitmap playBitmap("play_button.png");
-//    dc.DrawBitmap(playBitmap, 10, 50);
+    wxBitmap playBitmap(btn_play);
+    dc.DrawBitmap(playBitmap, 10, 50, true);
 
     // Draw the progress bar
     int progressBarWidth = size.GetWidth() - 20;

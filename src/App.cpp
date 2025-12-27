@@ -2,7 +2,6 @@
 #include "stdwx.h"
 
 #include "AppState.hpp"
-#include "Player.hpp"
 #include "MainFrame.hpp"
 #include "App.hpp"
 #include "Hash.hpp"

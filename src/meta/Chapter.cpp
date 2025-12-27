@@ -2,6 +2,8 @@
 #include "Chapter.hpp"
 
 Chapter::Chapter() {
+    m_number = 0;
+    m_pos = 0;
 }
 
 void Chapter::SetHash(std::string hash) {
