@@ -26,9 +26,30 @@ void ZipArchive::Open(std::string fileName) {
     m_archive = zip_open(fileName.c_str(), ZIP_RDONLY, nullptr);
 }
 
-//void ZipArchive::Entries() {
-//}
+/**
+ * Получаем список записей в архиве
+ *
+ */
+std::vector<ZipArchive::Entry> ZipArchive::GetEntries() {
+    std::vector<ZipArchive::Entry> entries;
+    int numFiles = zip_get_num_entries(m_archive, 0);
+    for (int i = 0; i < numFiles; ++i) {
+        struct zip_stat fileInfo;
+        zip_stat_init(&fileInfo);
+        if (zip_stat_index(m_archive, i, 0, &fileInfo) == 0) {
+            ZipArchive::Entry e;
+            e.index = fileInfo.index;
+            e.name = fileInfo.name;
+            entries.push_back(e);
+        }
+    }
+    return entries;
+}
 
+/**
+ * Извлечение файла
+ *
+ */
 void ZipArchive::Extract(std::string zipFile, std::string outFile) {
     int numFiles = zip_get_num_entries(m_archive, 0);
     for (int i = 0; i < numFiles; ++i) {

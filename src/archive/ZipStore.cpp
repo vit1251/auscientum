@@ -10,6 +10,7 @@
 #include "Chapter.hpp"
 #include "Book.hpp"
 #include "Tag.hpp"
+#include "Duration.hpp"
 #include "ZipArchive.hpp"
 #include "str.hpp"
 
@@ -65,6 +66,11 @@ Book* restoreBook(std::string fileName) {
         }
     }
     zip_close(archive);
+
+    // Шаг 2. Подгружаем длительность
+    for (auto chapter: book->m_chapters) {
+        LoadDuration(book, chapter);
+    }
 
     // Шаг 2. Подгружаем метаинформацию
     ZipArchive* archive2 = new ZipArchive();

@@ -21,19 +21,21 @@ file(GLOB CXX_SOURCES "src/App.cpp"
         "src/ChapterList.cpp"
         "src/AppState.cpp"
         "src/MainFrame.cpp"
-        "src/AudioPlayer.cpp"
         "src/PlayerPanel.cpp"
         "src/UnpackThread.cpp"
-        "src/common/Hash.cpp"
         "src/archive/ZipStore.cpp"
         "src/meta/Book.cpp"
         "src/meta/Chapter.cpp"
+        "src/compat/Hash.cpp"
+        "src/compat/StopWatch.cpp"
         "src/compat/xdg.cpp"
         "src/compat/fsx.cpp"
         "src/compat/str.cpp"
         "src/compat/ZipArchive.cpp"
         "src/Config.cpp"
-        "src/info/Tag.cpp"
+        "src/audio/AudioPlayer.cpp"
+        "src/audio/Tag.cpp"
+        "src/audio/Duration.cpp"
     )
 
 list(APPEND SOURCES ${CXX_SOURCES})
@@ -45,9 +47,8 @@ target_include_directories(auscientum PRIVATE "include")
 target_include_directories(auscientum PRIVATE "src")
 target_include_directories(auscientum PRIVATE "src/archive")
 target_include_directories(auscientum PRIVATE "src/meta")
-target_include_directories(auscientum PRIVATE "src/common")
 target_include_directories(auscientum PRIVATE "src/compat")
-target_include_directories(auscientum PRIVATE "src/info")
+target_include_directories(auscientum PRIVATE "src/audio")
 target_include_directories(auscientum PRIVATE ${SFML_INCLUDE_DIRS})
 target_include_directories(auscientum PRIVATE ${TAGLIB_INCLUDE_DIRS})
 

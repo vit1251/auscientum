@@ -6,6 +6,7 @@
 
 #include "str.hpp"
 
+#include "StopWatch.hpp"
 #include "AppState.hpp"
 #include "App.hpp"
 #include "ChapterView.hpp"
@@ -59,13 +60,22 @@ unsigned ChapterView::GetPos() {
     return percent;
 }
 
+static StopWatch watch;
+
+static constexpr unsigned SAVE_INTERVAL = 100;
+
 void ChapterView::OnTimer(wxTimerEvent& event) {
     AudokApp& audokApp = wxGetApp();
     AppState& appState = audokApp.m_state;
 
     m_chapter->m_pos = appState.m_music.getPlayingOffset();
 
-    appState.m_bookmark->SaveChapter(appState.m_book, m_chapter);
+    unsigned offset = watch.getOffset();
+    std::cout << "Проверка на сохранение позиции " << offset << std::endl;
+    if (offset >= SAVE_INTERVAL) {
+        appState.m_bookmark->SaveChapter(appState.m_book, m_chapter);
+        watch.start();
+    }
 
     Refresh();
 }
@@ -73,6 +83,7 @@ void ChapterView::OnTimer(wxTimerEvent& event) {
 void ChapterView::OnMouseClick(wxMouseEvent& event) {
     AudokApp& audokApp = wxGetApp();
     AppState& appState = audokApp.m_state;
+
     wxPoint pos = event.GetPosition();
     std::string chapterPath = m_chapter->m_path;
     int x = pos.x;
@@ -85,35 +96,8 @@ void ChapterView::OnMouseClick(wxMouseEvent& event) {
         wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION        // Кнопки и иконка
     );
     if (answer == wxYES) {
-        // Пользователь нажал "Да"
-    } else {
-        // Пользователь нажал "Нет" (или закрыл окно)
-        return;
+        appState.m_chapter = m_chapter;
     }
-
-    auto bookmark = std::make_unique<Bookmark>();
-
-    // Останавливаем если уже проигрываем
-    if (appState.m_music.getStatus() == AudioPlayer::State::Playing) {
-        bookmark->SaveChapter(appState.m_book, m_chapter);
-        appState.m_music.stop();
-        m_timer->Stop();
-        return;
-    }
-
-    // Загружаем аудиокнигу
-    if (!appState.m_music.openFromFile(chapterPath)) {
-        std::cerr << "Failed to open music file" << std::endl;
-        return;
-    }
-
-    // Запускаем проигрывание аудиокниги
-    std::cout << "Продолжаем проигрывание аудиокниги с позиции " << m_chapter->m_pos << " сек. " << std::endl;
-    appState.m_music.play();
-    appState.m_music.setPlayingOffset(m_chapter->m_pos);
-
-    // Запускаем таймер для обновления позиции
-    m_timer->Start(500);
 
 }
 
@@ -123,6 +107,10 @@ void ChapterView::OnPaint(wxPaintEvent& event) {
 
     wxSize size = GetClientSize();
     wxPaintDC dc(this);
+
+    // Очищаем
+    dc.SetBackground(wxBrush(wxColour(240, 240, 240)));
+    dc.Clear();
 
     dc.SetBackgroundMode(wxSOLID);
     dc.SetTextForeground(*wxBLACK);
@@ -134,8 +122,8 @@ void ChapterView::OnPaint(wxPaintEvent& event) {
     dc.DrawText(title, 10, 10);
 
     // Шаг 2. Рисуем позицию прогирывания
-    unsigned curPos = appState.m_music.getPlayingOffset();
-    unsigned curDur = appState.m_music.getDuration();
+    unsigned curPos = m_chapter->m_pos;
+    unsigned curDur = m_chapter->m_duration;
     std::string szPos = str::makeDuration(curPos);
     std::string szDur = str::makeDuration(curDur);
 

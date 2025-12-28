@@ -1,12 +1,20 @@
 #ifndef PLAYER_PANEL_HPP__
 #define PLAYER_PANEL_HPP__
 
+wxDECLARE_EVENT(PLAYER_CHANGE_BOOK, wxCommandEvent);
+wxDECLARE_EVENT(PLAYER_CHANGE_CHAPTER, wxCommandEvent);
 wxDECLARE_EVENT(PLAYER_CHANGE_POSITION, wxCommandEvent);
 
+class Book;
+class Chapter;
+
 class PlayerPanel : public wxPanel {
-    private:
+    protected:
+        Book *m_book;
+        Chapter *m_chapter;
         unsigned m_position;                              // Позиция проигрывателя аудиозаписи
         unsigned m_duration;                              // Длительность аудиозаписи
+    private:
         wxTimer* m_timer;                                 // Таймер для обновления позиции
         wxPanel* m_progress;                              // Панель положения проигрывателя
         wxBitmapButton* m_play;                           // Кнопка проигрывания

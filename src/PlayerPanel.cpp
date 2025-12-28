@@ -2,15 +2,27 @@
 #include "stdwx.h"
 #include "PlayerPanel.hpp"
 #include "str.hpp"
+#include "StopWatch.hpp"
+#include "AppState.hpp"
+#include "App.hpp"
+#include "Book.hpp"
+#include "Chapter.hpp"
+#include "Bookmark.hpp"
 
 #include "btn-play.xpm"
 #include "btn-pause.xpm"
 
+wxDEFINE_EVENT(PLAYER_CHANGE_BOOK, wxCommandEvent);
+wxDEFINE_EVENT(PLAYER_CHANGE_CHAPTER, wxCommandEvent);
 wxDEFINE_EVENT(PLAYER_CHANGE_POSITION, wxCommandEvent);
 
 
 PlayerPanel::PlayerPanel(wxWindow* parent) : wxPanel(parent, wxID_ANY) {
+    m_book = nullptr;
+    m_chapter = nullptr;
+    //
     SetBackgroundColour(wxColour(0, 230, 0));
+    //
     InitializeComponents();
     SetupLayout();
     BindEvents();
@@ -35,7 +47,7 @@ void PlayerPanel::InitializeComponents() {
     pauseImg.Rescale(24, 24, wxIMAGE_QUALITY_HIGH);
     wxBitmap pauseBitmap(pauseImg);
     m_pause = new wxBitmapButton(this, wxID_ANY, pauseBitmap, wxDefaultPosition, wxSize(32, 32), wxBORDER_NONE | wxBU_EXACTFIT);
-    m_info = new wxStaticText(this, wxID_ANY, "Глава 1. Введение");
+    m_info = new wxStaticText(this, wxID_ANY, "");
     // Служебные компоненты
     m_timer = new wxTimer(this, wxID_ANY);
     m_timer->Start(500);
@@ -56,7 +68,26 @@ void PlayerPanel::SetupLayout() {
     SetSizer(mainSizer);
 }
 
+static StopWatch watch;
+
 void PlayerPanel::ProgressOnTimer(wxTimerEvent& event) {
+    AudokApp& audokApp = wxGetApp();
+    AppState& appState = audokApp.m_state;
+    
+    // ОБновляем текст
+    if (m_chapter) {
+        wxString myTitle = wxString::Format("%s - %u", m_chapter->m_name, 0);
+        m_info->SetLabel(myTitle);
+    }
+
+    // Сохранить закладку каждый 100 сек.
+    auto duration = watch.getOffset();
+    if (duration > 100) {
+        appState.m_bookmark->SaveChapter(m_book, m_chapter);
+        watch.start();
+    }
+
+    // Обновить позицию проигрывания
     Refresh();
 }
 
@@ -91,6 +122,7 @@ void PlayerPanel::ProgressOnPaint(wxPaintEvent& event) {
 void PlayerPanel::ProgressOnMouseClick(wxMouseEvent& event) {
     wxPoint pos = event.GetPosition();
     wxSize size = GetClientSize();
+
     // Шаг 1. Пересчитаем позицию воспроизведения
     
 
@@ -102,11 +134,51 @@ void PlayerPanel::ProgressOnMouseClick(wxMouseEvent& event) {
 }
 
 void PlayerPanel::OnPlay(wxCommandEvent& event) {
+    AudokApp& audokApp = wxGetApp();
+    AppState& appState = audokApp.m_state;
+
     std::cout << "Нажата кнопка PLAY" << std::endl;
+
+    // Продолжаем проигрывание
+    if (appState.m_music.getStatus() == AudioPlayer::State::Paused) {
+        appState.m_music.play();
+        return;
+    }
+
+    // Останавливаем если уже проигрываем
+    if (appState.m_music.getStatus() == AudioPlayer::State::Playing) {
+        appState.m_music.stop();
+        m_timer->Stop();
+        return;
+    }
+
+    // Загружаем аудиокнигу
+    auto chapterPath = m_chapter->m_path;
+    if (!appState.m_music.openFromFile(chapterPath)) {
+        std::cerr << "Failed to open music file" << std::endl;
+        return;
+    }
+
+    // Запускаем проигрывание аудиокниги
+    std::cout << "Продолжаем проигрывание аудиокниги с позиции " << m_chapter->m_pos << " сек. " << std::endl;
+    appState.m_music.play();
+    appState.m_music.setPlayingOffset(m_chapter->m_pos);
+
+    // Запускаем таймер для обновления позиции
+    m_timer->Start(500);
+
 }
 
 void PlayerPanel::OnPause(wxCommandEvent& event) {
+    AudokApp& audokApp = wxGetApp();
+    AppState& appState = audokApp.m_state;
+
     std::cout << "Нажата кнопка PAUSE" << std::endl;
+
+    if (appState.m_music.getStatus() == AudioPlayer::State::Playing) {
+        appState.m_music.pause();
+    }
+
 }
 
 

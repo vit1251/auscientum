@@ -11,7 +11,8 @@ class Chapter {
         std::string m_path;             // Путь к файлу
         std::string m_name;             // Имя файла
         std::string m_hash;             // Хэш файла
-        unsigned m_pos;                 // Позиция аудио 
+        unsigned m_pos;                 // Текущая позиция проигрывания аудио
+        unsigned m_duration;            // Полная длительность главы в секундах
     public:
         Chapter();
         void SetHash(std::string hash);
