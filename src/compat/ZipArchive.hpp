@@ -15,8 +15,12 @@ class ZipArchive {
             friend class ZipArchive;
             protected:
                 unsigned index;            // Идентификатор в архиве
+                uint32_t crc;              // Контрольная сумма
             public:
                 std::string name;          // Имя файла
+                uint64_t size;             // Размер файла (до сжатия)
+                uint64_t comp_size;        // Размер файла (сжатый)
+                time_t mtime;              // Дата модификации
         };
     public:
         ZipArchive();

@@ -40,6 +40,8 @@ std::vector<ZipArchive::Entry> ZipArchive::GetEntries() {
             ZipArchive::Entry e;
             e.index = fileInfo.index;
             e.name = fileInfo.name;
+            e.size = fileInfo.size;
+            e.comp_size = fileInfo.comp_size;
             entries.push_back(e);
         }
     }

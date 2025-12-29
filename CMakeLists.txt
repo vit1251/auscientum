@@ -36,6 +36,7 @@ file(GLOB CXX_SOURCES "src/App.cpp"
         "src/audio/AudioPlayer.cpp"
         "src/audio/Tag.cpp"
         "src/audio/Duration.cpp"
+        "src/repo/BookmarkRepo.cpp"
     )
 
 list(APPEND SOURCES ${CXX_SOURCES})
@@ -45,6 +46,7 @@ add_executable(auscientum ${SOURCES})
 target_include_directories(auscientum PRIVATE "res")
 target_include_directories(auscientum PRIVATE "include")
 target_include_directories(auscientum PRIVATE "src")
+target_include_directories(auscientum PRIVATE "src/repo")
 target_include_directories(auscientum PRIVATE "src/archive")
 target_include_directories(auscientum PRIVATE "src/meta")
 target_include_directories(auscientum PRIVATE "src/compat")
