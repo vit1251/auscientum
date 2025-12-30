@@ -80,6 +80,7 @@ target_link_libraries(auscientum PRIVATE PkgConfig::LIBZIP)
 add_executable(test_hash 
         "tests/test_hash.cpp"
         "src/compat/Hash.cpp"
+        "src/compat/str.cpp"
     )
 target_include_directories(test_hash PRIVATE "src/compat")
 target_link_libraries(test_hash PRIVATE PkgConfig::OPENSSL)
