@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.20)
 
 project(auscientum C CXX)
 
+enable_testing()
+
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -12,7 +14,7 @@ find_package(SFML 2.5 COMPONENTS audio graphics window system REQUIRED)
 find_package(libzip REQUIRED)
 #find_package(TagLib REQUIRED)
 pkg_check_modules(TAGLIB REQUIRED IMPORTED_TARGET taglib)
-find_package(OpenSSL REQUIRED)
+pkg_check_modules(OPENSSL REQUIRED IMPORTED_TARGET openssl)
 find_package(wxWidgets REQUIRED COMPONENTS base core)
 find_package(SQLite3 REQUIRED)
 
@@ -61,8 +63,24 @@ target_compile_options(auscientum PRIVATE ${SFML_CXX_FLAGS})
 
 target_link_libraries(auscientum PRIVATE sfml-audio sfml-window sfml-system sfml-graphics)
 target_link_libraries(auscientum PRIVATE libzip::zip)
-#target_link_libraries(auscientum PRIVATE TagLib::TagLib)
-target_link_libraries(auscientum PRIVATE PkgConfig::TAGLIB)
-target_link_libraries(auscientum PRIVATE OpenSSL::SSL)
 target_link_libraries(auscientum PRIVATE wxWidgets::wxWidgets)
 target_link_libraries(auscientum PRIVATE SQLite::SQLite3)
+
+target_link_libraries(auscientum PRIVATE PkgConfig::TAGLIB)
+target_link_libraries(auscientum PRIVATE PkgConfig::OPENSSL)
+
+
+##########
+### Test
+
+# Test 1 - Check Hash (SHA256)
+
+add_executable(test_hash 
+        "tests/test_hash.cpp"
+        "src/compat/Hash.cpp"
+    )
+target_include_directories(test_hash PRIVATE "src/compat")
+target_link_libraries(test_hash PRIVATE PkgConfig::OPENSSL)
+add_test(NAME "Hash Test" COMMAND test_hash)
+
+# Test 2 - Check

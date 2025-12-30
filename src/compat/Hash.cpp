@@ -1,9 +1,10 @@
 
-#include <openssl/evp.h>
 #include <fstream>
 #include <iostream>
 #include <iomanip>
 #include <vector>
+
+#include <openssl/evp.h>
 
 #include "Hash.hpp"
 

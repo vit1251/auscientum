@@ -1,6 +1,9 @@
 #ifndef HASH_HPP__
 #define HASH_HPP__
 
+#include <string>
+#include <vector>
+
 #include <openssl/evp.h>
 
 class Hash {
