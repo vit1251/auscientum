@@ -17,6 +17,7 @@ pkg_check_modules(LIBZIP REQUIRED IMPORTED_TARGET libzip)
 pkg_check_modules(TAGLIB REQUIRED IMPORTED_TARGET taglib)
 pkg_check_modules(OPENSSL REQUIRED IMPORTED_TARGET openssl)
 pkg_check_modules(SQLITE3 REQUIRED IMPORTED_TARGET sqlite3)
+pkg_check_modules(GTEST REQUIRED IMPORTED_TARGET gtest_main)
 
 
 file(GLOB CXX_SOURCES "src/App.cpp"
@@ -82,6 +83,7 @@ add_executable(test_hash
     )
 target_include_directories(test_hash PRIVATE "src/compat")
 target_link_libraries(test_hash PRIVATE PkgConfig::OPENSSL)
+target_link_libraries(test_hash PRIVATE PkgConfig::GTEST)
 add_test(NAME "Hash Test" COMMAND test_hash)
 
 # Test 2 - Check
