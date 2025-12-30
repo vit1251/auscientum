@@ -4,6 +4,8 @@ project(auscientum C CXX)
 
 enable_testing()
 
+include(GoogleTest)
+
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -75,8 +77,6 @@ target_link_libraries(auscientum PRIVATE PkgConfig::LIBZIP)
 ##########
 ### Test
 
-# Test 1 - Check Hash (SHA256)
-
 add_executable(test_hash 
         "tests/test_hash.cpp"
         "src/compat/Hash.cpp"
@@ -84,6 +84,5 @@ add_executable(test_hash
 target_include_directories(test_hash PRIVATE "src/compat")
 target_link_libraries(test_hash PRIVATE PkgConfig::OPENSSL)
 target_link_libraries(test_hash PRIVATE PkgConfig::GTEST)
-add_test(NAME "Hash Test" COMMAND test_hash)
-
-# Test 2 - Check
+#add_test(NAME "Hash Test" COMMAND test_hash)
+gtest_discover_tests(test_hash)
