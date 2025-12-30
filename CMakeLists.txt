@@ -10,13 +10,14 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 find_package(PkgConfig REQUIRED)
 
-find_package(SFML 2.5 COMPONENTS audio graphics window system REQUIRED)
-find_package(libzip REQUIRED)
-#find_package(TagLib REQUIRED)
+find_package(SFML 2.5 REQUIRED COMPONENTS audio system)
+find_package(wxWidgets REQUIRED COMPONENTS base core)
+
+pkg_check_modules(LIBZIP REQUIRED IMPORTED_TARGET libzip)
 pkg_check_modules(TAGLIB REQUIRED IMPORTED_TARGET taglib)
 pkg_check_modules(OPENSSL REQUIRED IMPORTED_TARGET openssl)
-find_package(wxWidgets REQUIRED COMPONENTS base core)
-find_package(SQLite3 REQUIRED)
+pkg_check_modules(SQLITE3 REQUIRED IMPORTED_TARGET sqlite3)
+
 
 file(GLOB CXX_SOURCES "src/App.cpp"
         "src/BookView.cpp"
@@ -62,12 +63,12 @@ target_include_directories(auscientum PRIVATE ${TAGLIB_INCLUDE_DIRS})
 target_compile_options(auscientum PRIVATE ${SFML_CXX_FLAGS})
 
 target_link_libraries(auscientum PRIVATE sfml-audio sfml-window sfml-system sfml-graphics)
-target_link_libraries(auscientum PRIVATE libzip::zip)
 target_link_libraries(auscientum PRIVATE wxWidgets::wxWidgets)
-target_link_libraries(auscientum PRIVATE SQLite::SQLite3)
 
 target_link_libraries(auscientum PRIVATE PkgConfig::TAGLIB)
 target_link_libraries(auscientum PRIVATE PkgConfig::OPENSSL)
+target_link_libraries(auscientum PRIVATE PkgConfig::SQLITE3)
+target_link_libraries(auscientum PRIVATE PkgConfig::LIBZIP)
 
 
 ##########
